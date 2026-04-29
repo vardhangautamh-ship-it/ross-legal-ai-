@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <title>ROSS — Medical Jurisprudence Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --bg:#0a0c0f;--bg2:#0d1017;--bg3:#141820;
+      --border:#1e2330;--border2:#2a2e3a;
+      --gold:#d4a83a;--gold2:#8b6914;--gold3:#a07820;
+      --text:#e8e2d5;--text2:#c8c4bc;--text3:#9a9aa8;--text4:#5a6070;--text5:#3a4050;
+      --green:#3a7d55;--green-bg:#0c1f14;--green-border:#1a4028;
+      --purple:#7a5a80;--purple-bg:#0f0e10;--purple-border:#2a1a2e;
+      --red-bg:#0f0a0a;--red-border:#3a1a1a;--red:#c05050;
+    }
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Source Serif 4',serif;}
+
+    /* HEADER */
+    .hdr{position:sticky;top:0;z-index:100;border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;background:var(--bg2);}
+    .logo{display:flex;align-items:center;gap:12px;}
+    .seal{width:38px;height:38px;border:1.5px solid var(--gold2);border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--bg2);flex-shrink:0;}
+    .brand-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--gold);letter-spacing:.04em;line-height:1;}
+    .brand-sub{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text4);letter-spacing:.12em;text-transform:uppercase;margin-top:3px;}
+    .hdr-right{display:flex;align-items:center;gap:10px;}
+    .status-badge{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--green);background:var(--green-bg);border:1px solid var(--green-border);padding:4px 10px;border-radius:3px;display:flex;align-items:center;gap:6px;}
+    .status-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+    .mobile-menu-btn{display:none;background:transparent;border:1px solid var(--border2);border-radius:4px;padding:6px 8px;cursor:pointer;color:var(--text3);}
+
+    /* LAYOUT */
+    .app-body{display:flex;height:calc(100vh - 67px);overflow:hidden;}
+
+    /* SIDEBAR */
+    .sidebar{width:230px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:16px 0;transition:transform .25s ease;}
+    .sb-sec{padding:0 14px 16px;border-bottom:1px solid #1a1f28;margin-bottom:14px;}
+    .sb-sec:last-child{border-bottom:none;}
+    .sb-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--text5);margin-bottom:8px;}
+    .mbtn{width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:4px;padding:8px 10px;cursor:pointer;display:flex;align-items:center;gap:8px;margin-bottom:3px;transition:all .15s;color:var(--text4);font-family:'Source Serif 4',serif;font-size:12.5px;}
+    .mbtn:hover{background:var(--bg3);border-color:var(--border2);color:var(--text2);}
+    .mbtn.active{background:#14181e;border-color:var(--gold2);color:var(--gold);}
+    .mico{width:14px;height:14px;flex-shrink:0;opacity:.7;}
+    .mbtn.active .mico{opacity:1;}
+    .stag{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:9px;background:var(--bg);border:1px solid var(--border2);border-radius:3px;padding:2px 6px;color:#6a7080;margin:2px 2px 2px 0;}
+    .disc{margin:0 14px;background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:4px;padding:8px 10px;}
+    .disc p{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a3a50;line-height:1.6;}
+    .disc strong{color:var(--purple);display:block;margin-bottom:3px;font-size:9px;}
+    .powered-by{margin:10px 14px 0;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text5);text-align:center;}
+    .powered-by span{color:var(--gold2);}
+
+    /* SIDEBAR OVERLAY */
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;opacity:0;transition:opacity .25s;}
+    .sidebar-overlay.open{opacity:1;}
+
+    /* MAIN */
+    .main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+    .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg2);padding:0 20px;overflow-x:auto;}
+    .tab{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.06em;padding:12px 14px;cursor:pointer;color:var(--text5);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;background:transparent;border-left:none;border-right:none;border-top:none;text-transform:uppercase;white-space:nowrap;}
+    .tab:hover{color:var(--text3);}
+    .tab.active{color:var(--gold);border-bottom-color:var(--gold2);}
+
+    /* INPUT */
+    .input-zone{padding:18px 20px;border-bottom:1px solid #1a1e28;flex-shrink:0;}
+    .input-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text5);margin-bottom:8px;}
+    .case-textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:12px 14px;color:var(--text2);font-family:'Source Serif 4',serif;font-size:13.5px;line-height:1.7;resize:vertical;min-height:130px;outline:none;transition:border-color .15s;}
+    .case-textarea::placeholder{color:#2a3040;font-style:italic;}
+    .case-textarea:focus{border-color:var(--gold2);}
+    .controls-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:10px;flex-wrap:wrap;}
+    .pills{display:flex;gap:6px;flex-wrap:wrap;}
+    .pill{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:4px 9px;border:1px solid var(--border);border-radius:3px;cursor:pointer;color:var(--text5);background:transparent;transition:all .15s;letter-spacing:.06em;}
+    .pill:hover{border-color:var(--text5);color:var(--text3);}
+    .pill.sel{border-color:var(--gold2);color:var(--gold);background:#14100a;}
+    .analyze-btn{background:var(--gold2);border:none;border-radius:4px;padding:10px 22px;color:#0a0800;font-family:'Playfair Display',serif;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+    .analyze-btn:hover{background:var(--gold3);}
+    .analyze-btn:disabled{background:#2a2410;color:#4a4030;cursor:not-allowed;}
+
+    /* OUTPUT */
+    .output-zone{flex:1;overflow-y:auto;padding:20px;}
+
+    /* EMPTY */
+    .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;}
+    .empty-seal{width:56px;height:56px;border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px;opacity:.35;}
+    .empty-state h3{font-family:'Playfair Display',serif;font-size:17px;color:var(--text5);margin-bottom:6px;}
+    .empty-state p{font-size:13px;color:#2a3040;max-width:320px;line-height:1.7;}
+
+    /* LOADING */
+    .loading-wrap{display:flex;flex-direction:column;align-items:center;padding:60px 20px;gap:14px;}
+    .loading-bar{width:220px;height:2px;background:#1a1e28;border-radius:1px;overflow:hidden;}
+    .loading-fill{height:100%;background:var(--gold2);border-radius:1px;animation:ld 3s ease infinite;}
+    @keyframes ld{0%{width:0%}60%{width:78%}85%{width:90%}100%{width:100%}}
+    .loading-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text5);letter-spacing:.1em;}
+    .loading-steps{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+    .loading-step{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#2a3040;padding:3px 8px;border:1px solid #1a1e28;border-radius:3px;}
+    .loading-step.active{color:var(--gold2);border-color:var(--gold2);}
+
+    /* REPORT */
+    .report-wrap{animation:fadeUp .3s ease;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .report-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px;}
+    .report-id{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text5);letter-spacing:.1em;}
+    .report-model{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--gold2);}
+    .report-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--gold);margin-bottom:4px;}
+    .report-subtitle{font-size:12px;color:var(--text4);font-style:italic;border-bottom:1px solid var(--border);padding-bottom:16px;margin-bottom:20px;}
+    .report-section{margin-bottom:24px;}
+    .section-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #1a1e28;}
+    .section-num{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--gold2);letter-spacing:.08em;flex-shrink:0;}
+    .section-title{font-family:'Playfair Display',serif;font-size:14px;color:var(--text2);font-weight:600;}
+    .section-body{font-size:13.5px;color:var(--text3);line-height:1.85;}
+    .section-body p{margin-bottom:10px;}
+    .finding-item{background:var(--bg2);border-left:2px solid var(--gold2);border-radius:0 4px 4px 0;padding:8px 12px;margin-bottom:6px;font-size:12.5px;color:#8a8f9a;line-height:1.7;}
+    .disclaimer-box{background:var(--purple-bg);border:1px solid var(--purple-border);border-radius:4px;padding:12px 14px;}
+    .disclaimer-box p{font-family:'IBM Plex Mono',monospace;font-size:9px;color:#4a3a50;line-height:1.7;}
+    .disclaimer-box strong{color:var(--purple);display:block;margin-bottom:4px;font-size:9px;letter-spacing:.1em;}
+
+    /* SHA-256 CERTIFICATE BLOCK */
+    .cert-block{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:18px;margin-top:20px;}
+    .cert-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+    .cert-title{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold2);letter-spacing:.1em;text-transform:uppercase;}
+    .cert-verified{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--green);background:var(--green-bg);border:1px solid var(--green-border);padding:3px 8px;border-radius:3px;}
+    .cert-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;}
+    .cert-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text4);width:110px;flex-shrink:0;padding-top:2px;}
+    .cert-value{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text2);word-break:break-all;line-height:1.6;}
+    .cert-value.hash{color:var(--gold2);}
+    .cert-legal{font-family:'IBM Plex Mono',monospace;font-size:8px;color:#3a3a50;line-height:1.7;margin-top:12px;padding-top:10px;border-top:1px solid #1a1e28;}
+
+    /* REPORT ACTIONS */
+    .report-actions{display:flex;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap;}
+    .action-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:8px 16px;border:1px solid var(--border2);border-radius:3px;cursor:pointer;color:var(--text4);background:transparent;transition:all .15s;letter-spacing:.06em;}
+    .action-btn:hover{border-color:var(--gold2);color:var(--gold);}
+    .action-btn.primary{background:var(--gold2);border-color:var(--gold2);color:#0a0800;font-weight:600;}
+    .action-btn.primary:hover{background:var(--gold3);}
+    .action-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+    /* ERROR */
+    .error-box{background:var(--red-bg);border:1px solid var(--red-border);border-radius:4px;padding:14px 16px;}
+    .error-box p{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#7a4040;line-height:1.7;}
+    .error-box strong{color:var(--red);display:block;margin-bottom:6px;}
+
+    /* PRECEDENTS */
+    .prec-item{background:var(--bg2);border-left:2px solid var(--gold2);border-radius:0 4px 4px 0;padding:10px 14px;margin-bottom:8px;font-size:13px;color:#8a8f9a;line-height:1.7;}
+    .prec-item strong{color:var(--text2);font-weight:600;display:block;margin-bottom:3px;}
+    .prec-section-title{font-family:'Playfair Display',serif;font-size:15px;color:var(--text2);margin:20px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+
+    /* ABOUT */
+    .about-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px;margin-bottom:16px;}
+    .about-card h3{font-family:'Playfair Display',serif;font-size:16px;color:var(--gold);margin-bottom:10px;}
+    .about-card p{font-size:13px;color:var(--text3);line-height:1.8;margin-bottom:8px;}
+    .about-card p:last-child{margin-bottom:0;}
+    .module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:12px;}
+    .module-card{background:var(--bg);border:1px solid var(--border2);border-radius:4px;padding:12px;}
+    .module-card strong{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gold2);display:block;margin-bottom:4px;letter-spacing:.06em;}
+    .module-card span{font-size:12px;color:var(--text4);line-height:1.6;}
+
+    /* MOBILE */
+    @media(max-width:768px){
+      .brand-sub{display:none;}
+      .brand-title{font-size:18px;}
+      .mobile-menu-btn{display:block;}
+      .sidebar{position:fixed;left:0;top:67px;bottom:0;z-index:60;transform:translateX(-100%);width:260px;}
+      .sidebar.open{transform:translateX(0);}
+      .sidebar-overlay{display:block;}
+      .input-zone{padding:14px;}
+      .output-zone{padding:14px;}
+      .case-textarea{min-height:110px;font-size:13px;}
+      .controls-row{flex-direction:column;align-items:stretch;}
+      .analyze-btn{width:100%;text-align:center;padding:12px;}
+      .report-title{font-size:16px;}
+      .tabs{padding:0 10px;}
+      .tab{padding:10px 10px;font-size:9px;}
+      .cert-row{flex-direction:column;gap:2px;}
+      .cert-label{width:auto;}
+    }
+
+    ::-webkit-scrollbar{width:4px;}
+    ::-webkit-scrollbar-track{background:var(--bg);}
+    ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+    @media print{
+      .hdr,.sidebar,.tabs,.input-zone,.report-actions,.mobile-menu-btn{display:none!important;}
+      .app-body{display:block;height:auto;}
+      .main{overflow:visible;}
+      .output-zone{overflow:visible;padding:0;}
+      body{background:white;color:black;}
+      .report-title{color:#333;}
+      .section-num{color:#8b6914;}
+      .cert-block{border:1px solid #ccc;}
+      .cert-value.hash{color:#8b6914;}
+    }
+  </style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="logo">
+    <div class="seal">
+      <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+        <circle cx="11" cy="11" r="9" stroke="#8b6914" stroke-width="1"/>
+        <path d="M11 4L12.5 8.5H17L13.2 11.2L14.7 15.5L11 12.8L7.3 15.5L8.8 11.2L5 8.5H9.5Z" fill="#8b6914" opacity=".85"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-title">ROSS</div>
+      <div class="brand-sub">Medical Jurisprudence Intelligence — India</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      <span>SYSTEM ACTIVE</span>
+    </div>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Menu">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="app-body">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-sec">
+      <div class="sb-lbl">Analysis Domain</div>
+      <button class="mbtn active" onclick="selMod(this,'medico-legal')">
+        <svg class="mico" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Medico-Legal
+      </button>
+      <button class="mbtn" onclick="selMod(this,'malpractice')">
+        <svg class="mico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v4l2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Malpractice
+      </button>
+      <button class="mbtn" onclick="selMod(this,'regulations')">
+        <svg class="mico" viewBox="0 0 16 16" fill="none"><path d="M3 1h7l4 4v10H3V1z" stroke="currentColor" stroke-width="1.2"/><path d="M10 1v4h4" stroke="currentColor" stroke-width="1.2"/><path d="M5 9h6M5 12h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Regulations & Ethics
+      </button>
+      <button class="mbtn" onclick="selMod(this,'expert')">
+        <svg class="mico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M2 15c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Expert Witness
+      </button>
+      <button class="mbtn" onclick="selMod(this,'full')">
+        <svg class="mico" viewBox="0 0 16 16" fill="none"><path d="M1 8h3l3-6 4 12 3-5h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Full Report
+      </button>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-lbl">Output Format</div>
+      <button class="mbtn" onclick="selFmt(this,'court')">Court Submission</button>
+      <button class="mbtn active" onclick="selFmt(this,'study')">Academic / Study</button>
+      <button class="mbtn" onclick="selFmt(this,'brief')">Legal Brief</button>
+    </div>
+    <div class="sb-sec">
+      <div class="sb-lbl">Statutes Bank</div>
+      <div style="padding:2px 0">
+        <span class="stag">BNS 2023</span><span class="stag">BNSS 2023</span>
+        <span class="stag">BSA 2023</span><span class="stag">MTP Act</span>
+        <span class="stag">NMC Act</span><span class="stag">POCSO</span>
+        <span class="stag">CPA 2019</span><span class="stag">DPDP 2023</span>
+        <span class="stag">MHA 2017</span><span class="stag">DPA 1961</span>
+      </div>
+    </div>
+    <div class="disc">
+      <p><strong>ADVISORY</strong>Educational use only. Not licensed legal or medical advice. Consult qualified professionals.</p>
+    </div>
+    <div class="powered-by">Powered by <span>Grok 4</span> · xAI</div>
+  </aside>
+
+  <main class="main">
+    <nav class="tabs">
+      <button class="tab active" onclick="swTab(this,'t-input')">Case Input</button>
+      <button class="tab" onclick="swTab(this,'t-report')">Report</button>
+      <button class="tab" onclick="swTab(this,'t-precedents')">Precedents</button>
+      <button class="tab" onclick="swTab(this,'t-about')">About ROSS</button>
+    </nav>
+
+    <!-- CASE INPUT TAB -->
+    <div id="t-input" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+      <div class="input-zone">
+        <div class="input-label">Case Facts &amp; Medical Information</div>
+        <textarea class="case-textarea" id="caseInput" placeholder="Enter the case description — facts, medical findings, alleged injuries, circumstances of death or injury, professional conduct concerns, forensic or autopsy report details..."></textarea>
+        <div class="controls-row">
+          <div class="pills">
+            <button class="pill sel" onclick="togPill(this)">Injury Classification</button>
+            <button class="pill sel" onclick="togPill(this)">Cause of Death</button>
+            <button class="pill" onclick="togPill(this)">Consent Issues</button>
+            <button class="pill" onclick="togPill(this)">Standard of Care</button>
+            <button class="pill" onclick="togPill(this)">Criminal Liability</button>
+          </div>
+          <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()">Analyse Case →</button>
+        </div>
+      </div>
+      <div class="output-zone" id="outputZone">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-seal">
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+              <path d="M16 4L19 12L28 12L21 18L23 26L16 21L9 26L11 18L4 12L13 12Z" stroke="#3a4050" stroke-width="1.2" fill="none"/>
+            </svg>
+          </div>
+          <h3>Awaiting Case Submission</h3>
+          <p>Enter case facts above and press Analyse. ROSS will generate a structured medico-legal report with SHA-256 certificate anchored to Indian law.</p>
+        </div>
+        <div id="reportOut" style="display:none;"></div>
+      </div>
+    </div>
+
+    <!-- REPORT TAB -->
+    <div id="t-report" style="display:none;flex:1;overflow:hidden;">
+      <div class="output-zone" id="reportTabContent">
+        <div class="empty-state"><h3>No Report Yet</h3><p>Submit a case from the Case Input tab.</p></div>
+      </div>
+    </div>
+
+    <!-- PRECEDENTS TAB -->
+    <div id="t-precedents" style="display:none;flex:1;overflow:hidden;">
+      <div class="output-zone">
+        <div class="prec-section-title">Medical Negligence & Malpractice</div>
+        <div class="prec-item"><strong>Jacob Mathew v. State of Punjab (2005) 6 SCC 1</strong>Three-element test for criminal medical negligence. Bolam standard applies. Gross negligence threshold for BNS/IPC s.304A prosecution. Prior sanction of expert body recommended before criminal proceedings.</div>
+        <div class="prec-item"><strong>Kusum Sharma v. Batra Hospital (2010) 3 SCC 480</strong>Six-principle test for negligence. Expert medical evidence mandatory before prosecution. NCDRC jurisdiction affirmed.</div>
+        <div class="prec-item"><strong>Malay Kumar Ganguly v. Sukumar Mukherjee (2009) 9 SCC 221</strong>Civil and criminal liability can coexist. Hospital and doctor jointly liable. Punitive damages permissible for gross negligence.</div>
+        <div class="prec-item"><strong>Bolam v. Friern Hospital Management Committee [1957] 1 WLR 582</strong>Standard adopted by Indian courts. Not negligent if conduct accords with a responsible body of medical opinion.</div>
+        <div class="prec-section-title">Informed Consent</div>
+        <div class="prec-item"><strong>Samira Kohli v. Dr. Prabha Manchanda (2008) 2 SCC 1</strong>Informed consent doctrine in India. Consent must be specific to procedure performed. Extending procedure beyond consent = battery.</div>
+        <div class="prec-item"><strong>Pt. Parmanand Katara v. Union of India (1989) 4 SCC 286</strong>Right to emergency medical treatment. Duty to preserve life is paramount. Refusal violates Article 21.</div>
+        <div class="prec-section-title">Consumer Protection</div>
+        <div class="prec-item"><strong>IMA v. V.P. Shanta (1995) 6 SCC 651</strong>Medical profession within Consumer Protection Act. Patient as consumer. Free services excluded.</div>
+        <div class="prec-item"><strong>Spring Meadows Hospital v. Harjol Ahluwalia (1998) 4 SCC 39</strong>CPA extended to medical services. Hospital liable for negligence of staff.</div>
+        <div class="prec-section-title">Custodial Death & Article 21</div>
+        <div class="prec-item"><strong>D.K. Basu v. State of West Bengal (1997) 1 SCC 416</strong>Mandatory detention guidelines. Medical examination on arrest and release. Failure = contempt. Custodial death attracts strict Article 21 scrutiny.</div>
+        <div class="prec-item"><strong>Nilabati Behera v. State of Orissa (1993) 2 SCC 746</strong>State vicariously liable for custodial death. Compensation under Art.32/226 is a public law remedy.</div>
+      </div>
+    </div>
+
+    <!-- ABOUT TAB -->
+    <div id="t-about" style="display:none;flex:1;overflow:hidden;">
+      <div class="output-zone">
+        <div class="about-card">
+          <h3>What is ROSS?</h3>
+          <p>ROSS is a Medical Jurisprudence Intelligence System built exclusively for Indian law. It takes case facts and generates structured, court-presentable medico-legal analysis powered by Grok 4.</p>
+          <p>Every report is cryptographically sealed with a SHA-256 hash certificate, making it suitable as a verifiable electronic record under the Bharatiya Sakshya Adhiniyam 2023.</p>
+        </div>
+        <div class="about-card">
+          <h3>SHA-256 Document Integrity</h3>
+          <p>Every ROSS report receives a SHA-256 cryptographic hash at the moment of generation. The hash covers the Report ID, timestamp, case input, and full report content. Any alteration to the document produces a different hash — proving tampering.</p>
+          <p>Legal basis: Bharatiya Sakshya Adhiniyam 2023 §61-65 (electronic records), IT Act 2000 §85B (presumption of integrity for secure electronic records). Verification page available at <strong style="color:#8b6914">/verify.html</strong></p>
+        </div>
+        <div class="about-card">
+          <h3>Analysis Modules</h3>
+          <div class="module-grid">
+            <div class="module-card"><strong>MEDICO-LEGAL</strong><span>Injury classification, cause vs manner of death, forensic pathology, time of death</span></div>
+            <div class="module-card"><strong>MALPRACTICE</strong><span>Bolam test, standard of care, duty of care, res ipsa loquitur, causation</span></div>
+            <div class="module-card"><strong>REGULATIONS</strong><span>NMC Act, MTP Act, POCSO, informed consent, professional misconduct</span></div>
+            <div class="module-card"><strong>EXPERT WITNESS</strong><span>Court-ready testimony for Sessions Court or High Court</span></div>
+            <div class="module-card"><strong>FULL REPORT</strong><span>All domains — comprehensive 8-section analysis</span></div>
+          </div>
+        </div>
+        <div class="about-card">
+          <h3>Disclaimer</h3>
+          <p>ROSS is strictly an educational and research tool. Output does not constitute licensed legal advice, medical advice, or a substitute for a qualified advocate or registered medical practitioner. Always consult qualified professionals before taking any legal or medical action.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  let activeMod = 'medico-legal';
+  let activeFmt = 'study';
+  let lastReport = '';
+  let lastCertificate = null;
+  let isDownloadingPdf = false;
+
+  const loadSteps = ['Parsing case facts...','Applying BNS 2023...','Cross-referencing precedents...','Generating expert opinion...','Computing SHA-256...'];
+  let stepInterval = null;
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('open');
+  }
+
+  function selMod(btn, mod) {
+    btn.closest('.sb-sec').querySelectorAll('.mbtn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); activeMod = mod;
+    if (window.innerWidth <= 768) toggleSidebar();
+  }
+
+  function selFmt(btn, fmt) {
+    btn.closest('.sb-sec').querySelectorAll('.mbtn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); activeFmt = fmt;
+    if (window.innerWidth <= 768) toggleSidebar();
+  }
+
+  function togPill(btn) { btn.classList.toggle('sel'); }
+
+  function swTab(btn, tab) {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ['t-input','t-report','t-precedents','t-about'].forEach(id => {
+      document.getElementById(id).style.display = id === tab ? 'flex' : 'none';
+    });
+  }
+
+  function startLoadingSteps(container) {
+    let i = 0;
+    const items = container.querySelectorAll('.loading-step');
+    stepInterval = setInterval(() => {
+      items.forEach(it => it.classList.remove('active'));
+      if (items[i]) items[i].classList.add('active');
+      i = (i + 1) % items.length;
+    }, 700);
+  }
+
+  function stopLoadingSteps() {
+    if (stepInterval) { clearInterval(stepInterval); stepInterval = null; }
+  }
+
+  async function runAnalysis() {
+    const txt = document.getElementById('caseInput').value.trim();
+    if (txt.length < 20) {
+      const ta = document.getElementById('caseInput');
+      ta.style.borderColor = '#7a2a2a';
+      setTimeout(() => ta.style.borderColor = '', 1600);
+      return;
+    }
+
+    const pills = [...document.querySelectorAll('.pill.sel')].map(p => p.textContent.trim());
+    const btn = document.getElementById('analyzeBtn');
+    const out = document.getElementById('reportOut');
+
+    btn.disabled = true;
+    btn.textContent = 'Analysing...';
+    document.getElementById('emptyState').style.display = 'none';
+    out.style.display = 'block';
+    lastReport = '';
+    lastCertificate = null;
+
+    out.innerHTML = `
+      <div class="loading-wrap">
+        <div class="loading-bar"><div class="loading-fill"></div></div>
+        <div class="loading-label">GROK 4 IS ANALYSING YOUR CASE</div>
+        <div class="loading-steps">
+          ${loadSteps.map(s => `<div class="loading-step">${s}</div>`).join('')}
+        </div>
+      </div>`;
+
+    startLoadingSteps(out);
+
+    try {
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caseText: txt, module: activeMod, format: activeFmt, focusAreas: pills })
+      });
+
+      const data = await response.json();
+      stopLoadingSteps();
+
+      if (!response.ok || !data.success) throw new Error(data.error || `Server error ${response.status}`);
+
+      lastReport = data.report;
+      lastCertificate = data.certificate;
+
+      const html = buildReportHtml(data.report, data.certificate);
+      out.innerHTML = html;
+      document.getElementById('reportTabContent').innerHTML = html;
+
+    } catch (err) {
+      stopLoadingSteps();
+      out.innerHTML = `
+        <div class="error-box">
+          <p><strong>ANALYSIS FAILED</strong>
+          ${err.message}<br><br>
+          If this is an API key error, ensure XAI_API_KEY is set in Vercel environment variables.<br>
+          If credits issue, top up at console.x.ai
+          </p>
+        </div>`;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Analyse Case →';
+  }
+
+  function buildReportHtml(text, cert) {
+    const ts = cert ? new Date(cert.timestamp).toLocaleString('en-IN', {
+      day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true,timeZone:'Asia/Kolkata'
+    }) + ' IST' : '';
+
+    const rawSections = text.split(/\n(?=§\d+\.)/);
+    let sectionsHtml = '';
+
+    rawSections.forEach(sec => {
+      const match = sec.match(/^§(\d+)\.\s*([^\n]+)\n?([\s\S]*)/);
+      if (!match) return;
+      const num = match[1].padStart(2,'0');
+      const title = match[2].trim();
+      const body = match[3].trim();
+      const isDisc = title.toLowerCase().includes('disclaimer');
+      const isStatutes = title.toLowerCase().includes('statute') || title.toLowerCase().includes('precedent');
+      const isIssues = title.toLowerCase().includes('issues');
+      const isSteps = title.toLowerCase().includes('next steps') || title.toLowerCase().includes('suggested');
+
+      let bodyHtml = '';
+      if (isDisc) {
+        bodyHtml = `<div class="disclaimer-box"><p><strong>DISCLAIMER</strong>${body}</p></div>`;
+      } else if (isStatutes || isIssues || isSteps) {
+        body.split('\n').filter(l => l.trim()).forEach(l => {
+          bodyHtml += `<div class="finding-item">${l.trim().replace(/^[-•*]\s*/,'')}</div>`;
+        });
+      } else {
+        bodyHtml = `<div class="section-body">${body.split(/\n\n+/).map(p => `<p>${p.replace(/\n/g,'<br>')}</p>`).join('')}</div>`;
+      }
+
+      sectionsHtml += `
+        <div class="report-section">
+          <div class="section-header">
+            <span class="section-num">§${num}</span>
+            <span class="section-title">${title}</span>
+          </div>
+          ${bodyHtml}
+        </div>`;
+    });
+
+    if (!sectionsHtml) sectionsHtml = `<div class="section-body"><p>${text.replace(/\n/g,'<br>')}</p></div>`;
+
+    // SHA-256 certificate block
+    let certHtml = '';
+    if (cert) {
+      certHtml = `
+        <div class="cert-block">
+          <div class="cert-header">
+            <span class="cert-title">§ Document Integrity Certificate · SHA-256</span>
+            <span class="cert-verified">✓ HASH SEALED</span>
+          </div>
+          <div class="cert-row"><span class="cert-label">Report ID</span><span class="cert-value">${cert.reportId}</span></div>
+          <div class="cert-row"><span class="cert-label">Timestamp</span><span class="cert-value">${cert.timestamp} (ISO 8601 UTC) · ${ts}</span></div>
+          <div class="cert-row"><span class="cert-label">Algorithm</span><span class="cert-value">SHA-256 (FIPS 180-4)</span></div>
+          <div class="cert-row"><span class="cert-label">Model</span><span class="cert-value">${(cert.model||'grok-4').toUpperCase()} · ${cert.tokens||0} tokens</span></div>
+          <div class="cert-row"><span class="cert-label">Case Hash</span><span class="cert-value hash">${cert.caseHash}</span></div>
+          <div class="cert-row"><span class="cert-label">Document Hash</span><span class="cert-value hash">${cert.reportHash}</span></div>
+          <div class="cert-legal">
+            Legal basis: Bharatiya Sakshya Adhiniyam 2023 §61-65 (electronic records) · IT Act 2000 §85B (presumption of integrity) · UNCITRAL Model Law on Electronic Commerce<br>
+            This hash constitutes a cryptographic fingerprint of this document. Any alteration produces a different hash, proving tampering.<br>
+            Verify at: <a href="/verify.html?hash=${cert.reportHash}&id=${cert.reportId}" target="_blank" style="color:#8b6914;">/verify.html</a>
+          </div>
+        </div>`;
+    }
+
+    return `
+      <div class="report-wrap">
+        <div class="report-meta">
+          <span class="report-id">REPORT ID: ${cert?.reportId || 'N/A'} · ${ts}</span>
+          <span class="report-model">${(cert?.model||'GROK-4').toUpperCase()}</span>
+        </div>
+        <div class="report-title">Medico-Legal Analysis Report</div>
+        <div class="report-subtitle">Generated by ROSS · Medical Jurisprudence Intelligence System · Indian Jurisdiction · Educational Use Only</div>
+        ${sectionsHtml}
+        ${certHtml}
+        <div class="report-actions">
+          <button class="action-btn primary" id="pdfBtn" onclick="downloadPdf()">Download PDF →</button>
+          <button class="action-btn" onclick="copyReport()">Copy Text</button>
+          <button class="action-btn" onclick="window.open('/verify.html?hash=${cert?.reportHash||''}&id=${cert?.reportId||''}','_blank')">Verify Hash</button>
+          <button class="action-btn" onclick="newAnalysis()">New Analysis</button>
+        </div>
+      </div>`;
+  }
+
+  async function downloadPdf() {
+    if (!lastReport || !lastCertificate || isDownloadingPdf) return;
+
+    isDownloadingPdf = true;
+    const btn = document.getElementById('pdfBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Generating PDF...'; }
+
+    try {
+      const response = await fetch('/api/pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ report: lastReport, certificate: lastCertificate })
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || `PDF error ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ROSS-Report-${lastCertificate.reportId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+    } catch (err) {
+      alert(`PDF generation failed: ${err.message}`);
+    }
+
+    isDownloadingPdf = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'Download PDF →'; }
+  }
+
+  function copyReport() {
+    if (!lastReport) return;
+    navigator.clipboard.writeText(lastReport + (lastCertificate ? `\n\n---\nReport ID: ${lastCertificate.reportId}\nSHA-256: ${lastCertificate.reportHash}\nTimestamp: ${lastCertificate.timestamp}` : '')).then(() => {
+      document.querySelectorAll('.action-btn').forEach(b => {
+        if (b.textContent === 'Copy Text') { b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = 'Copy Text', 2000); }
+      });
+    });
+  }
+
+  function newAnalysis() {
+    document.getElementById('caseInput').value = '';
+    document.getElementById('reportOut').style.display = 'none';
+    document.getElementById('emptyState').style.display = 'flex';
+    lastReport = ''; lastCertificate = null;
+    document.querySelectorAll('.tab')[0].click();
+  }
+</script>
+</body>
+</html>
