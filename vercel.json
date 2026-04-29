@@ -3,7 +3,7 @@
   "rewrites": [
     { "source": "/api/analyze", "destination": "/api/analyze" },
     { "source": "/api/pdf", "destination": "/api/pdf" },
-    { "source": "/(.*)", "destination": "/public/$1" }
+    { "source": "/(.*)", "destination": "/$1" }
   ],
   "headers": [
     {
