@@ -5,10 +5,6 @@
     { "source": "/api/pdf", "destination": "/api/pdf" },
     { "source": "/(.*)", "destination": "/public/$1" }
   ],
-  "functions": {
-    "api/pdf.js": { "maxDuration": 30 },
-    "api/analyze.js": { "maxDuration": 60 }
-  },
   "headers": [
     {
       "source": "/api/(.*)",
